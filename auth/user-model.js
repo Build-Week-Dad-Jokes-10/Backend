@@ -6,6 +6,11 @@ function insert(user) {
     .then(([id]) => id);
 }
 
+function findByUsername(username) {
+    return db('users').where({ username }).first();
+}
+
 module.exports = {
-    insert
+    insert,
+    findByUsername
 }
