@@ -2,7 +2,7 @@
 // const config = require('../knexfile');
 // const db = knex(config.development);
 
-
+// this is my first draft model ive been messing with both to see what works. i got some help with the second one so i think that one is better.
 
 // function find() {
 //     return db('jokes').select('id', 'setup', 'punchline', 'username', 'userId');

@@ -1,7 +1,12 @@
 const express = require('express')
 const router = express.Router()
 const Jokes = require('./jokes_model.js')
-const privateRoute = require('../auth/middleware');
+const privateRoute = require('./private_route');
+
+//the commented out privateRoute is the one you made when i was getting issues i tried to make my own as well so thats the 
+//one thats uncommented. they are both named the same thing so if you wanna swap you can just uncomment yours and comment out mine.
+
+// const privateRoute = require('../auth/middleware.js');
 
 //will return only the public jokes
 router.get('/', (req, res) => {
@@ -27,7 +32,7 @@ router.get('/all', privateRoute, (req, res) => {
         res.status(500).json({ error: "db error: ", error })
     })
 })
-router.post('/jokes', privateRoute, (req, res) => {
+router.post('/:username/:joke_id', privateRoute, (req, res) => {
     const {user_id, joke_id} = req.params
     Jokes.saveJoke(user_id, joke_id).then((_joke) => {
         if (!_joke) {
@@ -132,7 +137,7 @@ module.exports = router
 
 
 
-// const router = require('express').Router();
+// // const router = require('express').Router();
 // const jokes = require('./jokes-model.js');
 
 
