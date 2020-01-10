@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const Jokes = require('./jokes_model.js')
-const privateRoute = require('./private_route');
+const privateRoute = require('../auth/middleware');
 
 //will return only the public jokes
 router.get('/', (req, res) => {
@@ -27,7 +27,7 @@ router.get('/all', privateRoute, (req, res) => {
         res.status(500).json({ error: "db error: ", error })
     })
 })
-router.post('/:user_id/:joke_id', privateRoute, (req, res) => {
+router.post('/jokes', privateRoute, (req, res) => {
     const {user_id, joke_id} = req.params
     Jokes.saveJoke(user_id, joke_id).then((_joke) => {
         if (!_joke) {
@@ -51,7 +51,7 @@ router.get('/saved/:username', privateRoute, (req, res) => {
         res.status(500).json({ error: "db error: ", error })
     })
 })
-//changed to a /:user_id so that we can add the id to the post request, and simplfy things on the front end
+
 router.post('/:username', privateRoute, (req, res) => {
     let joke = req.body
     const joke_owner = req.params.username
