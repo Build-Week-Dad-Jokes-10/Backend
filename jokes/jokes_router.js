@@ -10,14 +10,15 @@ const privateRoute = require('./private_route');
 
 //will return only the public jokes
 router.get('/', (req, res) => {
-    Jokes.findPublicJoke().then((_joke) => {
-        if (!_joke) {
+    Jokes.find().then((joke) => {
+        if (!joke) {
             res.status(404).json({ message: 'sorry, you do not have access try signing up!' })
         } else {
-            res.status(200).json(_joke)
+            res.status(200).json(joke)
         }
-    }).catch((_err) => {
-        res.status(500).json({ error: "db error: ", error })
+    }).catch((err) => {
+        console.log(err)
+        res.status(500).json({ error: "db error: " })
     })
 })
 // will return all the jokes wether they are public or private
@@ -32,75 +33,84 @@ router.get('/all', privateRoute, (req, res) => {
         res.status(500).json({ error: "db error: ", error })
     })
 })
-router.post('/:username/:joke_id', privateRoute, (req, res) => {
-    const {user_id, joke_id} = req.params
-    Jokes.saveJoke(user_id, joke_id).then((_joke) => {
-        if (!_joke) {
+router.post(`/:user_id`, (req, res) => {
+    const { user_id } = req.params
+    const { setup, punchline } = req.body
+    console.log(req.params, req.body)
+    Jokes.postJoke({setup, punchline, user_id})
+    .then(joke => {
+        console.log(joke)
+        if (!joke) {
             res.status(404).json({ message: 'sorry, joke could not be created.' })
         } else {
-            res.status(201).json({message:'saved success..', joke:_joke})
-        }
-    }).catch(() => {
-        res.status(500).json({ error: "db error: ", error })
-    })
-})
-router.get('/saved/:username', privateRoute, (req, res) => {
-    const {username} = req.params
-    Jokes.getSavedJoke(username).then((_joke) => {
-        if (!_joke) {
-            res.status(404).json({ message: 'sorry, there are no jokes.' })
-        } else {
-            res.status(200).json(_joke)
+            res.status(201).json({message:'saved success..'})
         }
     }).catch((err) => {
-        res.status(500).json({ error: "db error: ", error })
+        console.log(err)
+        res.status(500).json({ error: "db error: " })
     })
 })
+// router.get('/saved/:username', privateRoute, (req, res) => {
+//     const {username} = req.params
+//     Jokes.getSavedJoke(username).then((_joke) => {
+//         if (!_joke) {
+//             res.status(404).json({ message: 'sorry, there are no jokes.' })
+//         } else {
+//             res.status(200).json(_joke)
+//         }
+//     }).catch((err) => {
+//         res.status(500).json({ error: "db error: ", error })
+//     })
+// })
 
-router.post('/:username', privateRoute, (req, res) => {
-    let joke = req.body
-    const joke_owner = req.params.username
-    joke = {
-        ...joke,
-        joke_owner
-    }
-    Jokes.add(joke)
-        .then((_joke) => {
-            if (!_joke) {
-                res.status(404).json({ message: 'sorry, something has gone wrong.' })
-            } else {
-                res.status(201).json({ message: 'joke has been created successfully!' })
-            }
-        }).catch((_err) => {
-            res.status(500).json({ error: "db error: ", error })
-        })
-})
-router.delete('/:id', privateRoute, (req, res) => {
-    const deleted_id = req.params.id
-    Jokes.remove(deleted_id)
-        .then((_joke) => {
-            if (!_joke) {
+// router.post('/:username', privateRoute, (req, res) => {
+//     let joke = req.body
+//     const joke_owner = req.params.username
+//     joke = {
+//         ...joke,
+//         joke_owner
+//     }
+//     Jokes.add(joke)
+//         .then((_joke) => {
+//             if (!_joke) {
+//                 res.status(404).json({ message: 'sorry, something has gone wrong.' })
+//             } else {
+//                 res.status(201).json({ message: 'joke has been created successfully!' })
+//             }
+//         }).catch((_err) => {
+//             res.status(500).json({ error: "db error: ", error })
+//         })
+// })
+router.delete('/:joke_id', (req, res) => {
+    const { joke_id } = req.params
+    Jokes.remove(joke_id)
+        .then((joke) => {
+            if (!joke) {
                 res.status(404).json({ message: 'sorry no joke exists with that id.' })
             } else {
-                res.status(200).json({ message: 'joke has been deleted successfully!', deleted_id})
+                res.status(200).json({ message: 'joke has been deleted successfully!'})
             }
-        }).catch(() => {
-            res.status(500).json({ error: "db error: ", error })
+        }).catch((err) => {
+            console.log(err)
+            res.status(500).json({ error: "db error: "})
         })
 })
-router.put('/:id', privateRoute, (req, res) => {
-    const id = req.params.id
-    const changes = req.body
-    Jokes.update(id, changes)
-        .then((_joke) => {
-            if (!_joke) {
+router.put('/:id/:user_id', (req, res) => {
+    const { id, user_id } = req.params
+    const { setup, punchline } = req.body
+    console.log(req.body, req.params)
+    Jokes.update({id, setup, punchline,user_id })
+        .then((joke) => {
+            console.log(joke)
+            if (!joke) {
                 res.status(404).json({ message: 'sorry, something went wrong.' })
             } else {
                 res.status(200).json({ message: 'joke has been updated successfully!' })
             }
         })
-        .catch(() => {
-            res.status(500).json({ error: "db error: ", error })
+        .catch((err) => {
+            console.log(err)
+            res.status(500).json({ error: "db error: " })
         })
 })
 module.exports = router
