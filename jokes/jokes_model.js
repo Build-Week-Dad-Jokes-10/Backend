@@ -43,21 +43,21 @@
 // };
 
 
-const db = require('../data/dbConfig')
+const db = require('../data/db.js')
 module.exports = {
     find,
     findPublicJoke,
     add,
     remove,
     update,
-    saveJoke,
+    postJoke,
     getSavedJoke
 }
 function find() {
-    return db('joke')
+    return db('jokes')
 }
 function findById(id) {
-    return db('joke').where({ id }).first()
+    return db('jokes').where({ id }).first()
 }
 function findPublicJoke() {
     return db('joke').where({ public: true })
@@ -68,14 +68,9 @@ function add(joke) {
 function findSavedById(id) {
     return db('saved_joke').where({ id }).first()
 }
-function saveJoke(username, joke_id) {
-    return db('saved_joke')
-        .insert({ username, joke_id })
-        .then(() => {
-            return findSavedById(joke_id)
-        }).then((joke) => {
-            return findById(joke.id)
-        })
+function postJoke(joke) {
+    return db('jokes')
+        .insert(joke)
 }
 function getSavedJoke(username) {
     return db('saved_joke as s').where({username})
@@ -83,10 +78,8 @@ function getSavedJoke(username) {
     .select('j.id as joke_id', 'j.question', 'j.thumb_ups', 'j.thumb_downs', 'j.joke_owner', 'j.hearts')
 }
 function remove(id) {
-    return db('joke').where({ id }).del()
+    return db('jokes').where({ id }).del()
 }
-function update(id, changes) {
-    return db('joke').update(changes).where({ id }).then(ids => {
-        return findById(ids)
-    })
+function update(joke, id) {
+    return db('jokes').update(joke).where({ id })
 }
